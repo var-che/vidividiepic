@@ -81,7 +81,6 @@ export async function action({ request }: DataFunctionArgs) {
 		createMemoryUploadHandler({ maxPartSize: MAX_UPLOAD_SIZE }),
 	)
 	await validateCSRF(formData, request.headers)
-
 	const submission = await parse(formData, {
 		schema: NoteEditorSchema.superRefine(async (data, ctx) => {
 			if (!data.id) return
@@ -132,7 +131,6 @@ export async function action({ request }: DataFunctionArgs) {
 		}),
 		async: true,
 	})
-
 	if (submission.intent !== 'submit') {
 		return json({ submission } as const)
 	}
@@ -140,7 +138,7 @@ export async function action({ request }: DataFunctionArgs) {
 	if (!submission.value) {
 		return json({ submission } as const, { status: 400 })
 	}
-
+	console.log({submission})
 	const {
 		id: noteId,
 		title,
@@ -170,6 +168,7 @@ export async function action({ request }: DataFunctionArgs) {
 				create: newImages,
 			},
 		},
+
 	})
 
 	return redirect(
@@ -203,7 +202,6 @@ export function NoteEditor({
 		},
 	})
 	const imageList = useFieldList(form.ref, fields.images)
-
 	return (
 		<div className="absolute inset-0">
 			<Form

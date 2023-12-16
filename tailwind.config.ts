@@ -5,7 +5,7 @@ import radixPlugin from 'tailwindcss-radix'
 import { extendedTheme } from './app/utils/extended-theme.ts'
 
 export default {
-	content: ['./app/**/*.{ts,tsx,jsx,js}'],
+	content: ['./app/**/*.{ts,tsx,jsx,js}', "./node_modules/flowbite-react/**/*.js"],
 	darkMode: 'class',
 	theme: {
 		container: {
@@ -22,5 +22,5 @@ export default {
 			},
 		},
 	},
-	plugins: [animatePlugin, radixPlugin],
+	plugins: [animatePlugin, radixPlugin, require("flowbite/plugin")],
 } satisfies Config

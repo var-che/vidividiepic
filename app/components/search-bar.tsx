@@ -16,11 +16,12 @@ export function SearchBar({
 	autoSubmit?: boolean
 }) {
 	const id = useId()
+	const mestoId = useId()
 	const [searchParams] = useSearchParams()
 	const submit = useSubmit()
 	const isSubmitting = useIsPending({
 		formMethod: 'GET',
-		formAction: '/users',
+		formAction: '/pretraga',
 	})
 
 	const handleFormChange = useDebounce((form: HTMLFormElement) => {
@@ -30,7 +31,7 @@ export function SearchBar({
 	return (
 		<Form
 			method="GET"
-			action="/users"
+			action="/pretraga"
 			className="flex flex-wrap items-center justify-center gap-2"
 			onChange={e => autoSubmit && handleFormChange(e.currentTarget)}
 		>
@@ -46,6 +47,20 @@ export function SearchBar({
 					placeholder="Search"
 					className="w-full"
 					autoFocus={autoFocus}
+				/>
+			</div>
+			<div className="flex-1">
+				<Label htmlFor={mestoId} className="sr-only">
+					Mesto
+				</Label>
+				<Input
+					type="mesto"
+					name="mesto"
+					id={mestoId}
+					defaultValue={searchParams.get('mesto') ?? 'Niš'}
+					placeholder="Niš"
+					className="w-full"
+					// disabled={true}
 				/>
 			</div>
 			<div>

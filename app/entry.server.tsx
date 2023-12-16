@@ -89,6 +89,7 @@ export async function handleDataRequest(response: Response) {
 	response.headers.set('fly-primary-instance', primaryInstance)
 	response.headers.set('fly-instance', currentInstance)
 
+
 	return response
 }
 
