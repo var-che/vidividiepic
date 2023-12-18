@@ -40,10 +40,10 @@ export function SearchBar({
 					Search
 				</Label>
 				<Input
-					type="search"
-					name="search"
+					type="opis_stvari"
+					name="opis_stvari"
 					id={id}
-					defaultValue={searchParams.get('search') ?? ''}
+					defaultValue={searchParams.get('opis_stvari') ?? ''}
 					placeholder="Search"
 					className="w-full"
 					autoFocus={autoFocus}

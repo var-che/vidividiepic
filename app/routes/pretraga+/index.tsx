@@ -1,62 +1,108 @@
-import { Data, ItemsResponse, fetchItems } from '#app/utils/api.server.ts'
+import {
+	Data,
+	ItemsResponse,
+	fetchArticlesAndStores,
+	fetchDemoArticles,
+	fetchItems,
+} from '#app/utils/api.server.ts'
 import { queryAll } from '#app/utils/surrealdb.server.ts'
-import { LoaderFunction } from '@remix-run/node'
-import { useFetcher, useLoaderData } from '@remix-run/react'
+import { LoaderFunction, json } from '@remix-run/node'
+import { useFetcher, useLoaderData, useSearchParams } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
 
 export const loader: LoaderFunction = async remixContext => {
 	const url = new URL(remixContext.request.url)
-	const page = url.searchParams.get('page') || 0
+	const page = url.searchParams.get('page') || 1
+	const opis = url.searchParams.get('opis_stvari') || 'hleb'
+	const mesto = url.searchParams.get('mesto') || 'Niš'
 
-  let r = await queryAll({sql: ['select * from article;']})
-  console.log({r})
-	const items = await fetchItems({
-		page: Number(page),
-	})
+	let result = await fetchDemoArticles({page: 1})
+	
+	return json({ status: 'idle', items: result.data } as const)
+	// const result = await fetchArticlesAndStores({
+	// 	item_desc: opis,
+	// 	page: Number(page),
+	// 	place: mesto,
+	// })
 
-	return items
+	// let f = await fetchItems({page: 1});
+	// console.log({f})
+	// if (!result.success) {
+	// 	return json(
+	// 		{
+	// 			status: 'error',
+	// 			error:
+	// 				'Postoji neka greška. Ukoliko se problem nastavi, kontaktirajte podršku. Hvala',
+	// 		} as const,
+	// 		{
+	// 			status: 400,
+	// 		},
+	// 	)
+	// }
+
+	// return json({ status: 'idle', items: result.response } as const)
 }
 
 export default function Index() {
-	const initialItems = useLoaderData<ItemsResponse>()
-	const fetcher = useFetcher<ItemsResponse>()
+	const initialItems = useLoaderData<any>()
+	const [searchParams, setSearchParams] = useSearchParams();
+	const fetcher = useFetcher<any>()
 
-	const [items, setItems] = useState<Data[]>(initialItems.data)
+	const [items, setItems] = useState<any[]>(initialItems.items)
 
 	// An effect for appending data to items state
 	useEffect(() => {
+		console.log()
 		if (!fetcher.data || fetcher.state === 'loading') {
 			return
 		}
-
+		
 		if (fetcher.data) {
-			const newItems = fetcher.data.data
+			const newItems = fetcher.data.items
 			setItems(prevAssets => [...prevAssets, ...newItems])
 		}
-	}, [fetcher.data])
+	}, [fetcher.state, fetcher.data])
 
 	return (
 		<InfiniteScroller
 			loadNext={() => {
-				const page = fetcher.data
-					? fetcher.data.page + 1
-					: initialItems.page + 1
-				const query = `?index&page=${page}`
+				if(Number(searchParams.get("page"))){
+					let page = Number(searchParams.get("page")) + 1
 
-				fetcher.load(query)
+					const query = `?opis_stvari=verske&mesto=Niš&page=${page}`
+
+					fetcher.load(query)
+					searchParams.set("page", (page).toString())
+				} else {
+					const query = `?opis_stvari=verske&mesto=Niš&page=1`
+
+					fetcher.load(query)
+				}
+
+				
 			}}
 			loading={fetcher.state === 'loading'}
 		>
-			<div>
-				{/* Items Grid */}
-				<div className="items-container">
-					{items.map(item => (
-						<img key={item.id} className="item" src={item.thumb} />
-					))}
-				</div>
+			{initialItems.status === 'idle' ? (
+				initialItems.items.length ? (
+					<div>
+						{/* Items Grid */}
+						<div className="items-container">
+							{items.map((item, i) => (
+								<div style={{ padding: 5, marginTop: 200 }}>
+									<p key={i}>{item.article_name}</p>
+								</div>
+							))}
+						</div>
 
-				{/* Loader */}
-			</div>
+						{/* Loader */}
+					</div>
+				) : (
+					<p>We dont have data</p>
+				)
+			) : (
+				<p>Its not idle</p>
+			)}
 		</InfiniteScroller>
 	)
 }
